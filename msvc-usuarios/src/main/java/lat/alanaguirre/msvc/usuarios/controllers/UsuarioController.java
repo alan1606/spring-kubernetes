@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 public class UsuarioController {
@@ -39,14 +36,19 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<?> registrar(@Valid @RequestBody Usuario usuario, BindingResult result){
+
         if(result.hasErrors()){
             return validar(result);
+        }
+        if(usuario.getEmail()!=null  && !usuario.getEmail().isBlank() &&  service.existsByEmail(usuario.getEmail())){
+            return ResponseEntity.badRequest().body(Collections.singletonMap("mensaje", "Ya existe un usuario con ese correo"));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(usuario));
     }
 
     @PutMapping("/{id}")
     private ResponseEntity<?> modificar(@PathVariable Long id, @Valid @RequestBody Usuario usuario, BindingResult result){
+
         if(result.hasErrors()){
             return validar(result);
         }
@@ -55,7 +57,13 @@ public class UsuarioController {
         if(usuarioOptional.isEmpty()){
             return ResponseEntity.notFound().build();
         }
+
         var usuarioDb = usuarioOptional.get();
+
+        if(usuario.getEmail()!=null && !usuario.getEmail().isBlank() && !usuario.getEmail().equalsIgnoreCase(usuarioDb.getEmail()) && service.existsByEmail(usuario.getEmail())){
+            return ResponseEntity.badRequest().body(Collections.singletonMap("mensaje", "Ya existe un usuario con ese correo"));
+        }
+
         usuarioDb.setEmail(usuario.getEmail());
         usuarioDb.setNombre(usuario.getNombre());
         usuarioDb.setPassword(usuario.getPassword());

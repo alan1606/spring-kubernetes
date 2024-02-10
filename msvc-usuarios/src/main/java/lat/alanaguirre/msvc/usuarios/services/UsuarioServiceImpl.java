@@ -39,4 +39,16 @@ public class UsuarioServiceImpl implements  UsuarioService{
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Usuario> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
 }

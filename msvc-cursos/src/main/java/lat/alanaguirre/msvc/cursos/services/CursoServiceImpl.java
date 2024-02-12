@@ -1,5 +1,6 @@
 package lat.alanaguirre.msvc.cursos.services;
 
+import feign.FeignException;
 import lat.alanaguirre.msvc.cursos.clients.UsuarioClientRest;
 import lat.alanaguirre.msvc.cursos.models.Usuario;
 import lat.alanaguirre.msvc.cursos.models.entity.Curso;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CursoServiceImpl implements CursoService{
@@ -31,6 +33,28 @@ public class CursoServiceImpl implements CursoService{
     @Transactional(readOnly = true)
     public Optional<Curso> findById(Long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Curso> findByIdWithUsers(Long id) {
+        var optional = repository.findById(id);
+        if(optional.isEmpty()){
+            return Optional.empty();
+        }
+        var curso = optional.get();
+
+        if(!curso.getCursoUsuarios().isEmpty()){
+            List<Long> ids = curso.getCursoUsuarios().stream().map(CursoUsuario::getUsuarioId).collect(Collectors.toList());
+            try{
+               var usuarios = usuarioClientRest.buscarPorIds(ids);
+               curso.setUsuarios(usuarios);
+            }catch(FeignException e){
+                e.printStackTrace();
+            }
+        }
+
+        return Optional.of(curso);
     }
 
     @Override
@@ -91,5 +115,11 @@ public class CursoServiceImpl implements CursoService{
         curso.removerCursoUsuario(cursoUsuario);
         repository.save(curso);
         return Optional.of(usuarioMsvc);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCursoUsuarioByUsuarioId(Long usuarioId) {
+        repository.deleteCursoUsuarioByUsuarioId(usuarioId);
     }
 }

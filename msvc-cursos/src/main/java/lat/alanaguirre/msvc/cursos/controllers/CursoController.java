@@ -28,7 +28,7 @@ public class CursoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Curso> findById(@PathVariable Long id){
-        Optional<Curso> cursoOptional = service.findById(id);
+        Optional<Curso> cursoOptional = service.findByIdWithUsers(id);
         if(cursoOptional.isEmpty()){
             return ResponseEntity.notFound().build();
         }
@@ -121,6 +121,12 @@ public class CursoController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(o.get());
     }
 
+
+    @DeleteMapping("/eliminar-curso-usuario/{usuarioId}")
+    public ResponseEntity<?> eliminarUsuario(@PathVariable Long usuarioId){
+        service.deleteCursoUsuarioByUsuarioId(usuarioId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     private ResponseEntity<Map<String, String>> validar(BindingResult result) {
         Map<String,String> errores = new HashMap<>();

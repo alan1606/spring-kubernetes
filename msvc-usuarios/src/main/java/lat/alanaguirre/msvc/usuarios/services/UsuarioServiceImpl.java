@@ -1,5 +1,7 @@
 package lat.alanaguirre.msvc.usuarios.services;
 
+import feign.FeignException;
+import lat.alanaguirre.msvc.usuarios.client.CursoClienteRest;
 import lat.alanaguirre.msvc.usuarios.models.entity.Usuario;
 import lat.alanaguirre.msvc.usuarios.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -11,9 +13,11 @@ import java.util.Optional;
 @Service
 public class UsuarioServiceImpl implements  UsuarioService{
     private UsuarioRepository repository;
+    private CursoClienteRest cursoClienteRest;
 
-    public UsuarioServiceImpl(UsuarioRepository repository){
+    public UsuarioServiceImpl(UsuarioRepository repository, CursoClienteRest cursoClienteRest){
         this.repository = repository;
+        this.cursoClienteRest = cursoClienteRest;
     }
 
     @Override
@@ -38,6 +42,7 @@ public class UsuarioServiceImpl implements  UsuarioService{
     @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
+        cursoClienteRest.eliminarUsuario(id);
     }
 
     @Override
@@ -50,5 +55,11 @@ public class UsuarioServiceImpl implements  UsuarioService{
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return repository.existsByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Usuario> findAllByIds(Iterable<Long> ids) {
+        return (List<Usuario>) repository.findAllById(ids);
     }
 }

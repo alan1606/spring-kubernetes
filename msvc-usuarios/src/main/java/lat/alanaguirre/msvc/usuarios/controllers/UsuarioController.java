@@ -34,6 +34,11 @@ public class UsuarioController {
         return ResponseEntity.ok(usuario.get());
     }
 
+    @GetMapping("/usuarios")
+    public ResponseEntity<?> buscarPorIds(@RequestParam List<Long> ids){
+        return ResponseEntity.ok(service.findAllByIds(ids));
+    }
+
     @PostMapping
     public ResponseEntity<?> registrar(@Valid @RequestBody Usuario usuario, BindingResult result){
 
@@ -87,4 +92,5 @@ public class UsuarioController {
         });
         return ResponseEntity.badRequest().body(errores);
     }
+
 }

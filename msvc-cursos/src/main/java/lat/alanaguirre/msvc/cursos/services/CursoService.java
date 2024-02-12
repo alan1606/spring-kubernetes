@@ -13,6 +13,8 @@ public interface CursoService {
 
     Optional<Curso> findById(Long id);
 
+    Optional<Curso> findByIdWithUsers(Long id);
+
     Curso save(Curso curso);
 
     void delete(Long id);
@@ -22,4 +24,6 @@ public interface CursoService {
     Optional<Usuario> crearUsuario(Usuario usuario, Long cursoId);
 
     Optional<Usuario> eliminarUsuario(Usuario usuario, Long cursoId);
+
+    void deleteCursoUsuarioByUsuarioId(Long usuarioId);
 }
